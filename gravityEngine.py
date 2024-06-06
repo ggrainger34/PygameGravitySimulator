@@ -78,7 +78,7 @@ class Body:
         
 def makeNewBody():
     mousePos = pygame.mouse.get_pos()
-    Body(mousePos[0],mousePos[1], 0, 0, 400, 'assets/Object.png')
+    Body(mousePos[0],mousePos[1], 0, 0, 400, 'Object.png')
 
 #Initialise the pygame screen and set dimensions, clock speed and title of application
 pygame.init()
