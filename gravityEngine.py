@@ -19,7 +19,7 @@ screenSize = ((1000, 800))
 
 #Define computational constants as well as game constants
 #Gravitational constant can be changed
-gravitationalConstant = 1
+gravitationalConstant = 10
 eulerTimeStep = 0.01
 
 #bodyList is an array of all bodies affected by the gravitational force
@@ -83,8 +83,8 @@ class Body:
             resultantForceY += singleForceY
 
             #As F=m_1a and F=G*m_1*m_2 / r^2. We can cut m_1 from the equation. Hence F=a
-            accelerationX = resultantForceX
-            accelerationY = resultantForceY
+            accelerationX = resultantForceX * eulerTimeStep
+            accelerationY = resultantForceY * eulerTimeStep
 
             #Update position and velocity after calculating the desired acceleration
             self.updateVelocity(accelerationX, accelerationY)
@@ -130,7 +130,7 @@ prevCounter = perf_counter()
 currentTime = perf_counter()
 
 while True:
-    print(currentTime)
+    #print(currentTime)
 
     currentMouse = False
 
@@ -144,7 +144,7 @@ while True:
     if currentMouse and not mouseDownLastFrame:
         makeNewBody()
             
-    if currentTime - prevCounter > eulerTimeStep:
+    if (currentTime - prevCounter) > eulerTimeStep:
         print(currentTime - prevCounter)
         #Clear screen
         screen.fill((0,0,0))
@@ -153,10 +153,10 @@ while True:
         for body in bodyList:
             body.update()
 
-        
         #Update screen
         pygame.display.update()
 
         prevCounter = perf_counter()
+
     currentTime = perf_counter()
     mouseDownLastFrame = currentMouse
