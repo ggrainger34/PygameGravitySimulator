@@ -38,10 +38,6 @@ class Body:
         self.velY = velY
         self.mass = mass
         self.bodyRadius = bodyRadius
-
-        #Body centre, from where all calculations are carried out
-        self.bodyCentreX = self.posX + (self.bodyRadius / 2)
-        self.bodyCentreY = self.posY + (self.bodyRadius / 2)
         
         #The list of previousLocations is used to render the trail of the body
         self.previousLocations = []
@@ -90,7 +86,9 @@ class Body:
         #Update the screen
         self.renderTrail()
         self.renderBody()
-        self.previousLocations.append((self.posX, self.posY))
+
+        #Add previous locations, this is used for creating a trail
+        self.previousLocations.append((self.posX + (self.bodyRadius / 2), self.posY + (self.bodyRadius / 2)))
 
     #This code displays where the body has been in all past positions 
     def renderTrail(self):
@@ -118,7 +116,6 @@ screen = pygame.display.set_mode(screenSize)
 pygame.display.set_caption('n-body Simulation')
 clock = pygame.time.Clock()
 
-#Keep running the simulation until the user decides to quit
 mouseDownLastFrame = False
 
 prevCounter = perf_counter()
@@ -128,6 +125,7 @@ Body(500, 500, 0, 0, 30000, 30, 'Object.png')
 Body(200, 500, 0, 2, 10, 10, 'Object.png')
 Body(800, 500, 0, -2, 10, 10, 'Object.png')
 
+#Keep running the simulation until the user decides to quit
 while True:
     currentMouse = False
 
