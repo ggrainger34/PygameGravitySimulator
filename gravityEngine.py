@@ -27,7 +27,7 @@ bodyList = []
 
 #Define class body
 class Body:
-    def __init__(self, posX, posY, velX, velY, mass, bodyRadius, image):
+    def __init__(self, posX, posY, velX, velY, mass, bodyDiameter, image):
         #Load the sprite image
         bodyImage = pygame.image.load(image)
         #Define mass, x and y postions and x and y velocities 
@@ -37,12 +37,10 @@ class Body:
         self.velX = velX
         self.velY = velY
         self.mass = mass
-        self.bodyRadius = bodyRadius
-        
-        #The list of previousLocations is used to render the trail of the body
-        self.previousLocations = []
+        self.bodyDiameter = bodyDiameter
+
         #Scale the body according to the given size of the body
-        self.bodyImage = pygame.transform.scale(bodyImage, (self.bodyRadius, self.bodyRadius))
+        self.bodyImage = pygame.transform.scale(bodyImage, (self.bodyDiameter, self.bodyDiameter))
         #Add the new body to the body list - this is used in calculations
         bodyList.append(self)
         
@@ -88,7 +86,7 @@ class Body:
         self.renderBody()
 
         #Add previous locations, this is used for creating a trail
-        self.previousLocations.append((self.posX + (self.bodyRadius / 2), self.posY + (self.bodyRadius / 2)))
+        self.previousLocations.append((self.posX + (self.bodyDiameter / 2), self.posY + (self.bodyDiameter / 2)))
 
     #This code displays where the body has been in all past positions 
     def renderTrail(self):
@@ -96,6 +94,7 @@ class Body:
             pygame.draw.circle(screen, (55,55,55), location, 1)
 
     def renderBody(self):
+        #Draw the body
         screen.blit(self.bodyImage, (self.posX, self.posY))
         
     def updateVelocity(self, accelerationX, accelerationY):
@@ -108,7 +107,7 @@ class Body:
         
 def makeNewBody():
     mousePos = pygame.mouse.get_pos()
-    Body(mousePos[0], mousePos[1], 0, 0, 400, 30, 'Object.png')
+    Body(mousePos[0] - 15, mousePos[1] - 15, 0, 0, 400, 30, 'Object.png')
 
 #Initialise the pygame screen and set dimensions, clock speed and title of application
 pygame.init()
@@ -120,10 +119,6 @@ mouseDownLastFrame = False
 
 prevCounter = perf_counter()
 currentTime = perf_counter()
-
-Body(500, 500, 0, 0, 30000, 30, 'Object.png')
-Body(200, 500, 0, 2, 10, 10, 'Object.png')
-Body(800, 500, 0, -2, 10, 10, 'Object.png')
 
 #Keep running the simulation until the user decides to quit
 while True:
