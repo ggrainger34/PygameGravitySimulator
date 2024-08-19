@@ -62,14 +62,14 @@ class Body:
                 rSquared = ((otherBody.posX - self.posX) ** 2) + ((otherBody.posY - self.posY) ** 2)
 
                 #Find the direction in which the force is acting and normalise both x and y
-                forceDirectionX = (otherBody.posX - self.posX) / sqrt(rSquared)
-                forceDirectionY = (otherBody.posY - self.posY) / sqrt(rSquared)
+                forceNormalisedX = (otherBody.posX - self.posX) / sqrt(rSquared)
+                forceNormalisedY = (otherBody.posY - self.posY) / sqrt(rSquared)
 
                 #Newton's law of universal gravitation
                 singleForceMagnitude = gravitationalConstant * otherBody.mass / rSquared
 
-                singleForceX = singleForceMagnitude * forceDirectionX
-                singleForceY = singleForceMagnitude * forceDirectionY
+                singleForceX = singleForceMagnitude * forceNormalisedX
+                singleForceY = singleForceMagnitude * forceNormalisedY
 
             #Add the forces resulting from all seperate bodies to the resultant force
             resultantForceX += singleForceX
@@ -88,7 +88,7 @@ class Body:
         self.renderBody()
 
         #Add previous locations, this is used for creating a trail
-        self.previousLocations.append((self.posX + (self.bodyRadius / 2), self.posY + (self.bodyRadius / 2)))
+        self.previousLocations.append((self.posX, self.posY))
 
     #This code displays where the body has been in all past positions 
     def renderTrail(self):
@@ -96,7 +96,7 @@ class Body:
             pygame.draw.circle(screen, (55,55,55), location, 1)
 
     def renderBody(self):
-        screen.blit(self.bodyImage, (self.posX, self.posY))
+        pygame.draw.circle(screen, (255,0,0), (self.posX, self.posY), self.bodyRadius)
         
     def updateVelocity(self, accelerationX, accelerationY):
         self.velX += accelerationX * eulerTimeStep
