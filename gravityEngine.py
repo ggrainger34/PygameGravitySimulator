@@ -76,8 +76,8 @@ class Body:
             resultantForceY += singleForceY
 
             #As F=m_1a and F=G*m_1*m_2 / r^2. We can cut m_1 from the equation. Hence F=a
-            accelerationX = resultantForceX * eulerTimeStep
-            accelerationY = resultantForceY * eulerTimeStep
+            accelerationX = resultantForceX
+            accelerationY = resultantForceY
 
             #Update position and velocity after calculating acceleration
             self.updateVelocity(accelerationX, accelerationY)
@@ -99,12 +99,12 @@ class Body:
         screen.blit(self.bodyImage, (self.posX, self.posY))
         
     def updateVelocity(self, accelerationX, accelerationY):
-        self.velX += accelerationX
-        self.velY += accelerationY
+        self.velX += accelerationX * eulerTimeStep
+        self.velY += accelerationY * eulerTimeStep
         
     def updatePosition(self):
-        self.posX += self.velX
-        self.posY += self.velY
+        self.posX += self.velX * eulerTimeStep
+        self.posY += self.velY * eulerTimeStep
         
 def makeNewBody():
     mousePos = pygame.mouse.get_pos()
@@ -122,8 +122,8 @@ prevCounter = perf_counter()
 currentTime = perf_counter()
 
 Body(500, 500, 0, 0, 30000, 30, 'Object.png')
-Body(200, 500, 0, 2, 10, 10, 'Object.png')
-Body(800, 500, 0, -2, 10, 10, 'Object.png')
+Body(200, 500, 0, 20, 10, 10, 'Object.png')
+Body(800, 500, 0, -20, 10, 10, 'Object.png')
 
 #Keep running the simulation until the user decides to quit
 while True:
