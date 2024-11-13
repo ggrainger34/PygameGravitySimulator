@@ -1,6 +1,9 @@
-# pygameGravityEngine
-Physics Engine built to model the gravitational forces between bodies. Built in pygame. The user clicks to add a body and the bodies move according to the laws of gravity.
+# Gravity-Simulation
 
-The program has no particular optimisations and as a result has O(N^2). (Each body calculates the forces acting upon it and we do this for each body). This means that the program struggles to run for a high number of bodies. A quad tree or other such optimisations could be used to minimise this inefficiency.
+Small program to simulate gravity under Newton's laws of Gravitation using Euler's method, implemented in python with the pygame module.
+The time complexity of this algorithm is O(n^2) and works by cycling through each body and working out the forces affecting it. 
+The program is fairly unoptimised - further improvements could involve adding a quadtree or moving to a faster language.
 
-In order to run the project download gravityEngine.py and press run.
+The video explaining the code can be found here:
+
+https://www.youtube.com/watch?v=yH61WyYoawE

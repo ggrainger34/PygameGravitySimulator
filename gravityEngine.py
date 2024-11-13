@@ -1,24 +1,23 @@
 """
-This is a short program that allows the user to click to place a celestial body.
-The body will move according to Newton's laws of Gravitation.
+Gravity Simulator - ZiggyDEV
+
+Small program to simulate gravity under Newton's laws of Gravitation using Euler's method
 This was implemented in python with the module pygame.
-The time complexity of this algorithm is O(n^2) and works by cycling through each body and working out the forces affecting it, hence O(n^2)
-The program does not handle a large number of bodies well - further improvements could involve adding a quadtree to approximate the gravitional effects
-which could bring the program to O(nlogn) time
+The time complexity of this algorithm is O(n^2) and works by cycling through each body and working out the forces affecting it
+The program is fairly unoptimised - further improvements could involve adding a quadtree or moving to a faster language
 """
 
-from tkinter import CURRENT
 import pygame
-from random import randint
 from sys import exit
 from math import sqrt
 from time import perf_counter
+from colorsys import hsv_to_rgb
 
 #Screen size constant
-screenSize = ((1000, 800))
+screenSize = ((1100, 1100))
 
 #Define computational constants as well as game constants
-#Gravitational constant can be changed
+#Gravitational constant is arbitrary
 gravitationalConstant = 20
 eulerTimeStep = 0.01
 
@@ -27,9 +26,7 @@ bodyList = []
 
 #Define class body
 class Body:
-    def __init__(self, posX, posY, velX, velY, mass, bodyRadius, image):
-        #Load the sprite image
-        bodyImage = pygame.image.load(image)
+    def __init__(self, posX, posY, velX, velY, mass, bodyDiameter):
         #Define mass, x and y postions and x and y velocities 
         #Velocities will be used to update the position of the body
         self.posX = posX
@@ -37,27 +34,28 @@ class Body:
         self.velX = velX
         self.velY = velY
         self.mass = mass
-        self.bodyRadius = bodyRadius
+        self.bodyDiameter = bodyDiameter
+        self.bodyRadius = bodyDiameter / 2
         
         #The list of previousLocations is used to render the trail of the body
         self.previousLocations = []
-        #Scale the body according to the given size of the body
-        self.bodyImage = pygame.transform.scale(bodyImage, (self.bodyRadius, self.bodyRadius))
         #Add the new body to the body list - this is used in calculations
         bodyList.append(self)
         
     def update(self):
-        #Loop through all bodies in the list and calculate how their masses impact the movement of the body
-        for otherBody in bodyList:
-            resultantForceX = 0
-            resultantForceY = 0
+        resultantForceX = 0
+        resultantForceY = 0
 
+        #Loop through all bodies in the list and calculate how 
+        #their masses impact the movement of the body
+        for otherBody in bodyList:
             singleForceX = 0
             singleForceY = 0
 
             #The if statement stops bodies from being attracted to themselves 
-            #If the bodies positions are the same do not count gravitational attraction. As this stops bodies from being attracted to themselves
-            if not (otherBody.posY == self.posY and otherBody.posX == self.posX):
+            #If the bodies positions are the same do not count gravitational attraction.
+            #This stops bodies from being attracted to themselves
+            if otherBody != self:
                 #The distance between the bodies squared
                 rSquared = ((otherBody.posX - self.posX) ** 2) + ((otherBody.posY - self.posY) ** 2)
 
@@ -75,28 +73,42 @@ class Body:
             resultantForceX += singleForceX
             resultantForceY += singleForceY
 
-            #As F=m_1a and F=G*m_1*m_2 / r^2. We can cut m_1 from the equation. Hence F=a
-            accelerationX = resultantForceX
-            accelerationY = resultantForceY
+        #As F=m_1a and F=G*m_1*m_2 / r^2. We can cut m_1 from the equation. Hence F=a
+        accelerationX = resultantForceX
+        accelerationY = resultantForceY
 
-            #Update position and velocity after calculating acceleration
-            self.updateVelocity(accelerationX, accelerationY)
-            self.updatePosition()
+        #Update position and velocity after calculating acceleration
+        self.updateVelocity(accelerationX, accelerationY)
+        self.updatePosition()
 
         #Update the screen
         self.renderTrail()
         self.renderBody()
 
         #Add previous locations, this is used for creating a trail
-        self.previousLocations.append((self.posX, self.posY))
+        self.previousLocations.append([self.posX, self.posY, perf_counter()])
 
     #This code displays where the body has been in all past positions 
     def renderTrail(self):
         for location in self.previousLocations:
-            pygame.draw.circle(screen, (55,55,55), location, 1)
+            timeSinceCreation = currentTime - location[2]
+
+            #Changes colours as time continues. This is by changing the saturation
+            #in the HSV colour space and converting back to RGB
+            if timeSinceCreation < 20:
+                rgb = hsv_to_rgb(timeSinceCreation/ 36, 1.0, 1.0)
+                rgb = tuple([i * 255 for i in rgb])
+                pygame.draw.circle(screen, rgb, (location[0], location[1]), 1)
+
+            #Change the values in HSV colour space to make the trail fade to black
+            elif 20 < timeSinceCreation and timeSinceCreation < 35:
+                decayedValue = float(1 - ((timeSinceCreation - 20) / 35))
+                rgb = hsv_to_rgb(20/36, 1.0, decayedValue)
+                rgb = tuple([i * 255 for i in rgb])
+                pygame.draw.circle(screen, rgb, (location[0], location[1]), 1)
 
     def renderBody(self):
-        pygame.draw.circle(screen, (255,0,0), (self.posX, self.posY), self.bodyRadius)
+        pygame.draw.circle(screen, (255, 0, 0), (self.posX, self.posY), self.bodyRadius)
         
     def updateVelocity(self, accelerationX, accelerationY):
         self.velX += accelerationX * eulerTimeStep
@@ -105,15 +117,16 @@ class Body:
     def updatePosition(self):
         self.posX += self.velX * eulerTimeStep
         self.posY += self.velY * eulerTimeStep
-        
+
+#This was for testing but can now be cut       
 def makeNewBody():
     mousePos = pygame.mouse.get_pos()
-    Body(mousePos[0], mousePos[1], 0, 0, 400, 30, 'Object.png')
+    Body(mousePos[0], mousePos[1], 0, 0, 400, 30)
 
 #Initialise the pygame screen and set dimensions, clock speed and title of application
 pygame.init()
 screen = pygame.display.set_mode(screenSize)
-pygame.display.set_caption('n-body Simulation')
+pygame.display.set_caption('N-Body Simulation')
 clock = pygame.time.Clock()
 
 mouseDownLastFrame = False
@@ -121,9 +134,8 @@ mouseDownLastFrame = False
 prevCounter = perf_counter()
 currentTime = perf_counter()
 
-Body(500, 500, 0, 0, 30000, 30, 'Object.png')
-Body(200, 500, 0, 20, 10, 10, 'Object.png')
-Body(800, 500, 0, -20, 10, 10, 'Object.png')
+Body(100, 550, 0, -60, 600000, 20)
+Body(1000, 550, 0, 60, 600000, 20)
 
 #Keep running the simulation until the user decides to quit
 while True:
